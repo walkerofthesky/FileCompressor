@@ -17,7 +17,10 @@ namespace SolutionReach.Models
 
         public void Init()
         {
+            //Initialize lists
             List<FileInfo> allFiles = new List<FileInfo>();
+            UnzippedFiles = new List<FileInfo>();
+            ZippedFiles = new List<FileInfo>();
 
             string directoryPath = HttpContext.Current.Server.MapPath("~/Content/Files");            
             DirectoryInfo directory = new DirectoryInfo(directoryPath);
