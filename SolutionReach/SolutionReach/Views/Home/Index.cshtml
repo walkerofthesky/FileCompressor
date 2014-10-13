@@ -1,0 +1,140 @@
+﻿@model SolutionReach.Models.HomePageModel
+@{
+    ViewBag.Title = "SolutionReachSample";
+}
+
+<section class="content-section">
+    <h2 class="section-header">File Compressor</h2>
+    <p class="instructions">Begin by uploading files that you would like to zip.</p>
+
+    @using (Html.BeginForm("FileUpload", "HomeAPI", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <input id="fileInput" name="fileInput" type="file" /><br />
+        <button type="submit">Upload</button>
+    }
+
+    <div class="zipped-files-content">
+        <h3 class="section-header">Files</h3>
+        <p class="instructions">Select files to be zipped.</p>
+        <ul class="unzipped">
+            @foreach (FileInfo file in @Model.UnzippedFiles)
+            {
+                <li data-path="@file.FullName">@file.Name</li>
+            }
+        </ul>
+        @if (Model.UnzippedFiles.Count == 0)
+        {
+            <p class="no-files">No files</p>
+        }
+        <button class="zip-files-btn" disabled="disabled">Zip Selected Files</button>
+    </div>
+</section>
+
+<section class="content-section">
+    <h3 class="section-header">Zipped Files</h3>
+    <p class="instructions">Click a zipped file to download.</p>
+    <ul class="zipped">
+        @foreach (FileInfo file in @Model.ZippedFiles)
+        {
+            <li data-path="@file.FullName"><a href="~/Content/Files/@file.Name">@file.Name</a></li>
+        }
+    </ul>
+    @if (Model.ZippedFiles.Count == 0)
+    {
+        <p class="no-files">No zipped files</p>
+    }
+    
+</section>
+
+@section scripts {
+    <script>
+        var $unzipped = $('.unzipped'),
+            $zipped = $('.zipped');
+
+        //handle successful saving of new files to server (compressed or uncompressed)
+        var onSuccess = function (data, $ul) {
+            if (data.success) {
+                $ul.parent().find('.no-files').remove();
+                if ($ul.hasClass('unzipped')) {
+                    $ul.append('<li data-path="' + data.path + '">' + data.filename + '</li>');
+                    showZippedButton();
+                }
+                else {
+                    $('.selected').removeClass('selected'); //deselect all
+                    $ul.append('<li data-path="' + data.path + '"><a href="/Content/Files/' + data.filename + '">' + data.filename + '</a></li>');
+                }
+                
+            } else {
+                alert(data.message);
+            }
+        };
+
+        //Zip Selected Files button is hidden by default. Display if there are files to be zipped.
+        var showZippedButton = function () {
+            if ($unzipped.find('li').length > 0) {
+                $('.zip-files-btn').show();
+            }
+        };
+        showZippedButton();
+
+        //Unzipped files can be selected, and if at least one is selected the button to zip them should be enabled
+        $unzipped.on('click', 'li', function () {
+            $(this).toggleClass('selected');
+            if ($unzipped.find('.selected').length > 0) {
+                $('.zip-files-btn').prop('disabled', false);
+            }
+            else {
+                $('.zip-files-btn').prop('disabled', true);
+            }
+        });
+
+        //upload the selected file to the server
+        $('form').on('submit', function (e) {
+            var files = document.getElementById('fileInput').files,
+                formData = new FormData();
+
+            e.preventDefault();
+
+            if (files.length === 0) {
+                alert("No file was selected for upload.");
+                return false;
+            }
+
+            for (var i = 0; i < files.length; i++) {
+                formData.append('fileInput', files[i], files[i].name);
+            }
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', $(this).attr('action'), true); //$(this).attr('action') == /HomeAPI/FileUpload
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    onSuccess(JSON.parse(xhr.response), $unzipped);
+                } else {
+                    alert('Unable to upload file.');
+                }
+            };
+            xhr.send(formData);
+        });
+
+        //Selected file paths are sent to the server, so the files can be zipped and saved to the same directory
+        $('.zip-files-btn').on('click', function () {
+            var $selected = $('.selected'),
+                selectedFiles = [],
+                data = {},
+                zipName = prompt("Zipped file name: ");
+
+            //if no files are selected, stop now
+            if ($selected.length < 1) {
+                return false;
+            }
+
+            $selected.each(function () {
+                selectedFiles.push($(this).data('path'));
+            });
+            data.files = JSON.stringify(selectedFiles);
+            data.zipName = JSON.stringify(zipName);;
+
+            $.post('/HomeAPI/ZipFiles', data, function (data) { onSuccess(data, $zipped); }, "json");
+        });
+    </script>
+}

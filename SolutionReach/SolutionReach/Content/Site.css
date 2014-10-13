@@ -1,0 +1,114 @@
+﻿body {
+    font-size: .85em;
+    font-family: "Segoe UI", Verdana, Helvetica, Sans-Serif;
+    color: #232323;
+    background-color: darkblue;
+}
+
+button {
+    cursor: pointer;
+}
+button:disabled {
+    cursor: not-allowed;
+}
+
+header, footer, nav, section {
+    display: block;
+}
+
+.instructions {
+    font-size: .9em;
+    font-style: italic;
+    margin-top: 0;
+}
+
+li {
+    list-style: none;    
+}
+
+.content-section {
+    background: white;
+    border-radius: 5px;
+    float: left;
+    margin: 20px 0 0 20px;
+    max-width: 500px;
+    overflow: hidden;
+    padding: 0 10px 10px;
+}
+
+.no-files {
+    color: #DA350C;
+}
+
+.section-header {
+    margin-bottom: 0;
+}
+
+.selected {
+    background: lightblue;    
+}
+
+.unzipped {
+    cursor: pointer;
+}
+.unzipped li:hover {
+    background: #ccc;
+}
+
+.zip-files-btn {
+    display: none;
+}
+
+ul {
+    padding: 0 10px;
+}
+
+/* Styles for basic forms
+-----------------------------------------------------------*/
+fieldset {
+    border: 1px solid #ddd;
+    padding: 0 1.4em 1.4em 1.4em;
+    margin: 0 0 1.5em 0;
+}
+
+legend {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+textarea {
+    min-height: 75px;
+}
+
+.editor-label {
+    margin: 1em 0 0 0;
+}
+
+.editor-field {
+    margin: 0.5em 0 0 0;
+}
+
+
+/* Styles for validation helpers
+-----------------------------------------------------------*/
+.field-validation-error {
+    color: #f00;
+}
+
+.field-validation-valid {
+    display: none;
+}
+
+.input-validation-error {
+    border: 1px solid #f00;
+    background-color: #fee;
+}
+
+.validation-summary-errors {
+    font-weight: bold;
+    color: #f00;
+}
+
+.validation-summary-valid {
+    display: none;
+}
